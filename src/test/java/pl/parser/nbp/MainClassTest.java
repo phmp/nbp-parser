@@ -4,9 +4,6 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
-/**
- * Created by Gosia on 08.10.2016.
- */
 @Test
 public class MainClassTest {
 

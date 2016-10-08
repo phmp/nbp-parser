@@ -1,14 +1,19 @@
 package pl.parser.nbp;
 
+import java.time.LocalDate;
+import pl.parser.nbp.utils.Currency;
+
 public class MainClass {
 
     public static void main(String[] args) {
 
-        System.out.println("dane: ");
-
-        for ( String arg : args ){
-            System.out.println(arg);
-        }
+        String output = doAllWork(args);
+        System.out.print(output);
 
     }
+
+    private static String doAllWork(String[] args) {
+        return null;
+    }
+
 }
