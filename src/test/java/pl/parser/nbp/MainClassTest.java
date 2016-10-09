@@ -1,5 +1,6 @@
 package pl.parser.nbp;
 
+import junit.framework.Assert;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
@@ -8,7 +9,9 @@ import static org.testng.Assert.*;
 public class MainClassTest {
 
     public void test(){
-        MainClass.main(new String[]{"2016-01-01","2017-01-01","EUR"});
+        String outPut = MainClass.doAllWork(new String[]{"2016-01-01", "2017-01-01", "EUR"});
+
+        Assert.assertNotNull(outPut);
     }
 
 }

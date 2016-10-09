@@ -8,22 +8,22 @@ import pl.parser.nbp.utils.Currency;
 import java.time.LocalDate;
 
 /**
-
- Should parse valid dates and currency and provide proper objects
-
- Should throw illegal argument exception for wrong dates order
- Should throw illegal argument exception for unsupported currency
- Should throw illegal argument exception for wrong date format
- Should throw illegal argument exception for too old dates
- Should throw illegal argument exception for wrong number of arguments
-
+ * positive
+ * Should parse valid dates and currency and provide proper objects
+ *
+ * negative
+ * Should throw illegal argument exception for wrong dates order
+ * Should throw illegal argument exception for unsupported currency
+ * Should throw illegal argument exception for wrong date format
+ * Should throw illegal argument exception for too old dates
+ * Should throw illegal argument exception for wrong number of arguments
  */
 public class InputDataTest {
 
     @Test(dataProvider = "provideDates")
-    public void shouldParseValidDates(String fromDateInput, String toDateInput, String currencyInput){
+    public void shouldParseValidDates(String currencyInput, String fromDateInput, String toDateInput) {
 
-        String [] args = {fromDateInput, toDateInput, currencyInput};
+        String[] args = {currencyInput, fromDateInput, toDateInput};
         InputData inputData = new InputData(args);
 
         final LocalDate fromDate = inputData.getFrom();
@@ -37,12 +37,12 @@ public class InputDataTest {
     }
 
     @DataProvider
-    public Object[][] provideDates(){
+    public Object[][] provideDates() {
         return new Object[][]{
-                {"2015-01-01", "2016-02-01", "USD"},
-                {"2015-01-02", "2016-01-01", "EUR"},
-                {"2014-01-03", "2016-02-07", "CHF"},
-                {"2011-01-01", "2016-02-06", "GBP"}
+                {"USD", "2015-01-01", "2016-02-01"},
+                {"EUR", "2015-01-02", "2016-01-01"},
+                {"CHF", "2014-01-03", "2016-02-07"},
+                {"GBP", "2011-01-01", "2011-01-01"}
         };
     }
 

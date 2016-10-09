@@ -12,7 +12,7 @@ public class MainClass {
 
     }
 
-    private static String doAllWork(String[] args) {
+    public static String doAllWork(String[] args) {
         return null;
     }
 
