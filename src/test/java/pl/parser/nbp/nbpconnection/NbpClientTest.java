@@ -1,5 +1,6 @@
 package pl.parser.nbp.nbpconnection;
 
+import junit.framework.Assert;
 import org.testng.annotations.Test;
 import pl.parser.nbp.InputData;
 import pl.parser.nbp.utils.Currency;
@@ -21,11 +22,15 @@ public class NbpClientTest {
         Currency currency = Currency.EUR;
 
         LocalDate firstDay = LocalDate.of(2016, Month.AUGUST, 1);
-        LocalDate lastDay = LocalDate.of(2016, Month.AUGUST, 10);
+        LocalDate lastDay = LocalDate.of(2016, Month.AUGUST, 5);
         String rates = sut.getRates(firstDay, lastDay, currency);
 
+        Assert.assertTrue(rates.contains("<Code>EUR</Code>"));
+        Assert.assertTrue(rates.contains("<Rates>"));
+        for(LocalDate day = firstDay; day.isBefore(lastDay); day = day.plusDays(1)){
+            Assert.assertTrue(rates.contains(day.toString()));
+        }
         System.out.println("result:" + rates);
-
     }
 
 }

@@ -17,6 +17,8 @@ import java.time.LocalDate;
  * Should throw illegal argument exception for wrong date format
  * Should throw illegal argument exception for too old dates
  * Should throw illegal argument exception for wrong number of arguments
+ * Should throw illegal argument exception for too long period of time between dates
+ *
  */
 public class InputDataTest {
 
