@@ -1,17 +1,28 @@
 package pl.parser.nbp;
 
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
-
-/**
- * Created by Gosia on 08.10.2016.
- */
-@Test
 public class MainClassTest {
 
-    public void test(){
-        MainClass.main(new String[]{"2016-01-01","2017-01-01","EUR"});
+    @Test(dataProvider = "provideStandardData")
+    public void test(String[] input, String expectedOutput) {
+        String outPut = MainClass.doAllWork(input);
+        Assert.assertEquals(outPut, expectedOutput);
     }
 
+    @DataProvider
+    public Object[][] provideStandardData() {
+        return new Object[][]{
+        {
+                new String[]{"EUR", "2016-08-01", "2016-08-10"}, "4.3522\n0.0344"
+        }, {
+                new String[]{"EUR", "2016-08-01", "2016-08-05"}, "4.3729\n0.0267"
+        }, {
+                new String[]{"EUR", "2016-08-04", "2016-08-08"}, "4.3378\n0.0119"
+        }
+
+        };
+    }
 }
