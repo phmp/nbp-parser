@@ -3,6 +3,7 @@ package pl.parser.nbp;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class MainClass {
                 sum = sum.add(rate);
             }
             BigDecimal n = new BigDecimal(ratesList.size());
-            BigDecimal average = sum.divide(n);
+            BigDecimal average = sum.divide(n, RoundingMode.HALF_EVEN);
 
             BigDecimal standardDevitation = new BigDecimal(0);
             for (BigDecimal rate: ratesList) {
@@ -49,7 +50,7 @@ public class MainClass {
                 standardDevitation = standardDevitation.add(augent);
             }
             System.out.print("" +n);
-            standardDevitation = standardDevitation.divide(n);
+            standardDevitation = standardDevitation.divide(n, RoundingMode.HALF_EVEN);
 
             standardDevitation = new BigDecimal(Math.sqrt(standardDevitation.doubleValue()));
 
