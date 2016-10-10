@@ -2,15 +2,14 @@ package pl.parser.nbp.nbpconnection;
 
 import junit.framework.Assert;
 import org.testng.annotations.Test;
-import pl.parser.nbp.InputData;
 import pl.parser.nbp.utils.Currency;
 
-import java.math.BigDecimal;
+import java.io.InputStream;
+
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
-
-import static org.testng.Assert.*;
+import java.util.Scanner;
 
 
 public class NbpClientTest {
@@ -23,14 +22,20 @@ public class NbpClientTest {
 
         LocalDate firstDay = LocalDate.of(2016, Month.AUGUST, 1);
         LocalDate lastDay = LocalDate.of(2016, Month.AUGUST, 5);
-        String rates = sut.getRates(firstDay, lastDay, currency);
+        InputStream rates = sut.getRates(firstDay, lastDay, currency);
 
-        Assert.assertTrue(rates.contains("<Code>EUR</Code>"));
-        Assert.assertTrue(rates.contains("<Rates>"));
+        String responseString = toStringFromInputStream(rates);
+
+        Assert.assertTrue(responseString.contains("<Code>EUR</Code>"));
+        Assert.assertTrue(responseString.contains("<Rates>"));
         for(LocalDate day = firstDay; day.isBefore(lastDay); day = day.plusDays(1)){
-            Assert.assertTrue(rates.contains(day.toString()));
+            Assert.assertTrue(responseString.contains(day.toString()));
         }
         System.out.println("result:" + rates);
     }
 
+    String toStringFromInputStream(InputStream inputStream){
+        Scanner s = new Scanner(inputStream).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
 }

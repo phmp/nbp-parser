@@ -12,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,14 +22,15 @@ public class RatesXml {
 
     private final Currency currency;
     private final List<BigDecimal> rates;
-    private String xml;
 
-    public RatesXml(String xml) throws ParserConfigurationException, IOException, SAXException {
-        this.xml = xml;
+    public RatesXml(InputStream xml) throws ParserConfigurationException, IOException, SAXException {
+
         rates = new ArrayList<BigDecimal>();
+        
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse(new InputSource(new StringReader(xml)));
+        Document doc = dBuilder.parse(xml);
+
         Element documentElement = doc.getDocumentElement();
         documentElement.normalize();
         NodeList code = documentElement.getElementsByTagName("Code");

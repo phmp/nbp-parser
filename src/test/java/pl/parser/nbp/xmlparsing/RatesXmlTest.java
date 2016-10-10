@@ -2,14 +2,19 @@ package pl.parser.nbp.xmlparsing;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import pl.parser.nbp.utils.Currency;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 /*
 * constructorShouldBeAbleToParseXmlFromString
@@ -22,12 +27,12 @@ public class RatesXmlTest {
 
     @Test
     public void constructorShouldBeAbleToParseXmlFromString() throws IOException, SAXException, ParserConfigurationException {
-        new RatesXml(STANDARD_STRING_XML);
+        new RatesXml(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
     }
 
     @Test
     public void shouldReturnCorrectCurrencyCode() throws IOException, SAXException, ParserConfigurationException {
-        RatesXml ratesXml = new RatesXml(STANDARD_STRING_XML);
+        RatesXml ratesXml = new RatesXml(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
         Currency currency = ratesXml.getCurrency();
 
         Assert.assertEquals(currency, Currency.USD);
@@ -35,13 +40,14 @@ public class RatesXmlTest {
 
     @Test
     public void shouldReturnCorrectRates() throws IOException, SAXException, ParserConfigurationException {
-        RatesXml ratesXml = new RatesXml(STANDARD_STRING_XML);
+        RatesXml ratesXml = new RatesXml(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
         List<BigDecimal> rates = ratesXml.getRates();
 
         List<BigDecimal> expectedRates = Arrays.asList(new BigDecimal("4.0053"),new BigDecimal("4.0514"),new BigDecimal("4.0392"));
 
         Assert.assertEquals(rates, expectedRates);
     }
+
 
     public static final String STANDARD_STRING_XML = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "<ExchangeRatesSeries\n" +

@@ -1,6 +1,7 @@
 package pl.parser.nbp;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.xml.sax.SAXException;
+import pl.parser.nbp.calculation.RatesCalculator;
 import pl.parser.nbp.nbpconnection.NbpClient;
 import pl.parser.nbp.utils.Currency;
 import pl.parser.nbp.xmlparsing.RatesXml;
@@ -23,7 +25,7 @@ public class MainClass {
 
     }
 
-    public static String doAllWork(String[] args) {
+    public static String doAllWork(String[] args){
         InputData inputData = new InputData(args);
 
         Currency currency = inputData.getCurrency();
@@ -31,39 +33,23 @@ public class MainClass {
         LocalDate dateTo = inputData.getTo();
 
         NbpClient nbpClient = new NbpClient();
-        String responseXml;
+        InputStream responseXml;
+
+        RatesXml rates;
         try {
             responseXml = nbpClient.getRates(dateFrom, dateTo, currency);
-            RatesXml rates = new RatesXml(responseXml);
-            List<BigDecimal> ratesList = rates.getRates();
-
-            BigDecimal sum = new BigDecimal(0);
-            for (BigDecimal rate: ratesList) {
-                sum = sum.add(rate);
-            }
-            BigDecimal n = new BigDecimal(ratesList.size());
-            BigDecimal average = sum.divide(n, RoundingMode.HALF_EVEN);
-
-            BigDecimal standardDevitation = new BigDecimal(0);
-            for (BigDecimal rate: ratesList) {
-                BigDecimal augent = average.subtract(rate).pow(2);
-                standardDevitation = standardDevitation.add(augent);
-            }
-            System.out.print("" +n);
-            standardDevitation = standardDevitation.divide(n, RoundingMode.HALF_EVEN);
-
-            standardDevitation = new BigDecimal(Math.sqrt(standardDevitation.doubleValue()));
-
-            return average.round(new MathContext(5)).toPlainString()+"\n"+standardDevitation.round(new MathContext(3)).toPlainString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
+            rates = new RatesXml(responseXml);
+        }catch (Exception e){
+            return e.getMessage();
         }
 
-        return null;
+        List<BigDecimal> ratesList = rates.getRates();
+        RatesCalculator ratesCalculator = new RatesCalculator(ratesList);
+
+        BigDecimal average = ratesCalculator.getAverage();
+        BigDecimal standardDivitation = ratesCalculator.getStandardDivitation();
+
+        return average+"\n"+standardDivitation;
     }
 
 }
