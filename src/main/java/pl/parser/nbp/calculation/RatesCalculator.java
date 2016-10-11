@@ -1,5 +1,7 @@
 package pl.parser.nbp.calculation;
 
+import pl.parser.nbp.utils.ExchangeRates;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -7,33 +9,38 @@ import java.util.List;
 
 public class RatesCalculator {
 
-    private final BigDecimal average;
-    private BigDecimal n;
-    private List<BigDecimal> rates;
+    private final List<BigDecimal> buyingRates;
+    private final List<BigDecimal> sellingRates;
 
-    public RatesCalculator(List<BigDecimal> rates) {
-        this.rates = rates;
-        this.n = new BigDecimal(rates.size());
+    public RatesCalculator(ExchangeRates exchangeRates) {
+        this.buyingRates = exchangeRates.getBuyingRates();
+        this.sellingRates = exchangeRates.getSailingRates();
+    }
 
-        BigDecimal sum = new BigDecimal(0);
+    public BigDecimal getAverageOfBuyingRates(){
+        return getAverage(buyingRates);
+    }
+
+    private BigDecimal getAverage(List<BigDecimal> rates){
+        BigDecimal numberOfRates = new BigDecimal(rates.size());
+
+        BigDecimal sum = BigDecimal.ZERO;
         for (BigDecimal rate: rates) {
             sum = sum.add(rate);
         }
 
-        this.average = sum.divide(n, RoundingMode.HALF_EVEN).round(new MathContext(5,RoundingMode.HALF_EVEN));
+        return sum.divide(numberOfRates, RoundingMode.HALF_EVEN).round(new MathContext(5, RoundingMode.HALF_EVEN));
     }
 
-    public BigDecimal getAverage(){
-        return average;
-    }
-
-    public BigDecimal getStandardDivitation(){
-        BigDecimal standardDevitation = new BigDecimal(0);
-        for (BigDecimal rate: rates) {
+    public BigDecimal getStandardDivitationOfSellingRates(){
+        BigDecimal standardDevitation = BigDecimal.ZERO;
+        BigDecimal average = getAverage(sellingRates);
+        BigDecimal numberOfRates = new BigDecimal(sellingRates.size());
+        for (BigDecimal rate: sellingRates) {
             BigDecimal augent = average.subtract(rate).pow(2);
             standardDevitation = standardDevitation.add(augent);
         }
-        standardDevitation = standardDevitation.divide(n, RoundingMode.HALF_EVEN);
+        standardDevitation = standardDevitation.divide(numberOfRates, RoundingMode.HALF_EVEN);
         standardDevitation = new BigDecimal(Math.sqrt(standardDevitation.doubleValue()), new MathContext(3,RoundingMode.HALF_EVEN));
         return standardDevitation;
     }

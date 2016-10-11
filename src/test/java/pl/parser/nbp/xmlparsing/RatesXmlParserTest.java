@@ -7,6 +7,7 @@ import pl.parser.nbp.utils.CurrencyCode;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -19,29 +20,25 @@ import java.util.List;
 */
 
 
-public class RatesXmlTest {
+public class RatesXmlParserTest {
 
     @Test
     public void constructorShouldBeAbleToParseXmlFromString() throws IOException, SAXException, ParserConfigurationException {
-        new RatesXml(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
-    }
-
-    @Test
-    public void shouldReturnCorrectCurrencyCode() throws IOException, SAXException, ParserConfigurationException {
-        RatesXml ratesXml = new RatesXml(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
-        CurrencyCode currencyCode = ratesXml.getCurrencyCode();
-
-        Assert.assertEquals(currencyCode, CurrencyCode.USD);
+        new RatesXmlParser(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
     }
 
     @Test
     public void shouldReturnCorrectRates() throws IOException, SAXException, ParserConfigurationException {
-        RatesXml ratesXml = new RatesXml(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
-        List<BigDecimal> rates = ratesXml.getRates();
+        RatesXmlParser ratesXmlParser = new RatesXmlParser(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
+        List<BigDecimal> buyingRates = ratesXmlParser.getRates().getBuyingRates();
 
-        List<BigDecimal> expectedRates = Arrays.asList(new BigDecimal("4.0053"),new BigDecimal("4.0514"),new BigDecimal("4.0392"));
+        List<BigDecimal> expectedBuingRates = Arrays.asList(new BigDecimal("3.9259"),new BigDecimal("3.9712"),new BigDecimal("3.9592"));
+        Assert.assertEquals(buyingRates, expectedBuingRates);
 
-        Assert.assertEquals(rates, expectedRates);
+        List<BigDecimal> sellingRates = ratesXmlParser.getRates().getSailingRates();
+
+        List<BigDecimal> expectedSellingRates = Arrays.asList(new BigDecimal("4.0053"),new BigDecimal("4.0514"),new BigDecimal("4.0392"));
+        Assert.assertEquals(sellingRates, expectedSellingRates);
     }
 
 

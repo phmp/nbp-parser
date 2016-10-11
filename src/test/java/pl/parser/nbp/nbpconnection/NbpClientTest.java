@@ -1,53 +1,42 @@
 package pl.parser.nbp.nbpconnection;
 
-import junit.framework.Assert;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.Any;
 import org.testng.annotations.Test;
 import pl.parser.nbp.utils.CurrencyCode;
-import pl.parser.nbp.utils.exceptions.ConnectionException;
-import pl.parser.nbp.utils.exceptions.RatesUnavaibleException;
+import pl.parser.nbp.utils.exceptions.NbpConnectionException;
+import pl.parser.nbp.utils.exceptions.RatesNotPublishedException;
 
-import java.io.InputStream;
-
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URLConnection;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Scanner;
+import java.net.URL;
+
+
+import static org.testng.Assert.*;
+
+/*
+*  whenConnectionThrowProtocolException_should_throwNbpConnectionExceptionWithProperMessage
+*
+*  shouldReturnInputStreamFromConnection
+*  whenConnectionThrowException_should_throwNbpConnectionExceptionWithProperMessage
+*
+*
+* */
 
 
 public class NbpClientTest {
-    @Test
-    public void shouldReturnResponseWithCurrencyAndRates() throws Exception {
 
-        NbpClient sut = new NbpClient();
+    public void shouldGetConnectionToCorrectAddress() throws RatesNotPublishedException, NbpConnectionException, IOException {
 
-        CurrencyCode currencyCode = CurrencyCode.EUR;
+        HttpURLConnection mockConnection = Mockito.mock(HttpURLConnection.class);
+        NbpClient systemUnderTest = Mockito.spy(new NbpClient());
+        Mockito.when(systemUnderTest.getConnection(Mockito.any(URL.class))).thenReturn(mockConnection);
 
-        LocalDate firstDay = LocalDate.of(2016, Month.AUGUST, 1);
-        LocalDate lastDay = LocalDate.of(2016, Month.AUGUST, 5);
-        InputStream rates = sut.getRates(firstDay, lastDay, currencyCode);
+        systemUnderTest.getRates(LocalDate.of(2016, Month.JANUARY,3), LocalDate.of(2016, Month.JANUARY,4), CurrencyCode.CHF);
 
-        String responseString = toStringFromInputStream(rates);
-
-        Assert.assertTrue(responseString.contains("<Code>EUR</Code>"));
-        Assert.assertTrue(responseString.contains("<Rates>"));
-        for(LocalDate day = firstDay; day.isBefore(lastDay); day = day.plusDays(1)){
-            Assert.assertTrue(responseString.contains(day.toString()));
-        }
-        System.out.println("result:" + rates);
     }
 
-    @Test(expectedExceptions = RatesUnavaibleException.class, expectedExceptionsMessageRegExp = "Rates were not published in this days")
-    public void shouldThrowExceptionForHolidays() throws ConnectionException, RatesUnavaibleException {
-
-        NbpClient sut = new NbpClient();
-        CurrencyCode currencyCode = CurrencyCode.EUR;
-
-        LocalDate firstDay = LocalDate.of(2016, Month.JANUARY, 1);
-        LocalDate lastDay = LocalDate.of(2016, Month.JANUARY, 2);
-        sut.getRates(firstDay, lastDay, currencyCode);
-    }
-
-    String toStringFromInputStream(InputStream inputStream){
-        Scanner s = new Scanner(inputStream).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
-    }
 }

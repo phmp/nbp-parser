@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExchangeRatesSeries
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Table>C</Table>
+    <CurrencyCode>dolar amerykański</CurrencyCode>
+    <Code>USD</Code>
+    <Rates>
+        <Rate>
+            <No>002/C/NBP/2016</No>
+            <EffectiveDate>2016-01-05</EffectiveDate>
+            <Bid>3.9259</Bid>
+            <Ask>4.0053</Ask>
+        </Rate>
+        <Rate>
+            <No>003/C/NBP/2016</No>
+            <EffectiveDate>2016-01-07</EffectiveDate>
+            <Bid>3.9712</Bid>
+            <Ask>4.0514</Ask>
+        </Rate>
+        <Rate>
+            <No>004/C/NBP/2016</No>
+            <EffectiveDate>2016-01-08</EffectiveDate>
+            <Bid>3.9592</Bid>
+            <Ask>4.0392</Ask>
+        </Rate>
+    </Rates>
+</ExchangeRatesSeries>

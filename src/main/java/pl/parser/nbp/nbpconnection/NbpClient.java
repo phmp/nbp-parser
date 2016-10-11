@@ -8,39 +8,38 @@ import java.net.URL;
 import java.time.LocalDate;
 
 import pl.parser.nbp.utils.CurrencyCode;
-import pl.parser.nbp.utils.exceptions.ConnectionException;
-import pl.parser.nbp.utils.exceptions.RatesUnavaibleException;
+import pl.parser.nbp.utils.exceptions.NbpConnectionException;
+import pl.parser.nbp.utils.exceptions.RatesNotPublishedException;
 
 public class NbpClient {
 
     private final static String NBP_URL = "http://api.nbp.pl/api/exchangerates/rates/c/";
 
-    public InputStream getRates(LocalDate firstDay, LocalDate lastDay, CurrencyCode currencyCode) throws ConnectionException, RatesUnavaibleException {
-        String url = NBP_URL + currencyCode + "/" + firstDay + "/" + lastDay + "/";
-
+    public InputStream getRates(LocalDate firstDay, LocalDate lastDay, CurrencyCode currencyCode) throws NbpConnectionException, RatesNotPublishedException {
+        String urlString = NBP_URL + currencyCode + "/" + firstDay + "/" + lastDay + "/";
         try {
-            HttpURLConnection con = getConnection(url);
-            con.setRequestMethod("GET");
-            con.setRequestProperty("Accept", "application/xml");
-            return getResponse(con);
+            URL url = new URL(urlString);
+            HttpURLConnection connection = getConnection(url);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/xml");
+            return getResponse(connection);
         }catch (ProtocolException e){
-            throw new ConnectionException("Protocol issue, cannot send GET request", e);
+            throw new NbpConnectionException("Protocol issue, cannot send GET request", e);
         }catch (IOException e){
-            throw new ConnectionException("Connection issue, check connection", e);
+            throw new NbpConnectionException("Connection issue, check connection", e);
         }
 
     }
 
-    protected HttpURLConnection getConnection(String url) throws IOException {
-        URL obj = new URL(url);
-        return (HttpURLConnection) obj.openConnection();
+    protected HttpURLConnection getConnection(URL url) throws IOException {
+        return (HttpURLConnection) url.openConnection();
     }
 
-    private InputStream getResponse(HttpURLConnection connection) throws RatesUnavaibleException {
+    private InputStream getResponse(HttpURLConnection connection) throws RatesNotPublishedException {
         try {
             return connection.getInputStream();
         } catch (IOException e) {
-            throw new RatesUnavaibleException("Rates were not published in this days", e);
+            throw new RatesNotPublishedException("Rates were not published in this days", e);
         }
     }
 
