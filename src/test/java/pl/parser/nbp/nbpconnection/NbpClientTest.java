@@ -2,11 +2,12 @@ package pl.parser.nbp.nbpconnection;
 
 import junit.framework.Assert;
 import org.testng.annotations.Test;
-import pl.parser.nbp.utils.Currency;
+import pl.parser.nbp.utils.CurrencyCode;
+import pl.parser.nbp.utils.exceptions.ConnectionException;
+import pl.parser.nbp.utils.exceptions.RatesUnavaibleException;
 
 import java.io.InputStream;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Scanner;
@@ -14,15 +15,15 @@ import java.util.Scanner;
 
 public class NbpClientTest {
     @Test
-    public void testGet() throws Exception {
+    public void shouldReturnResponseWithCurrencyAndRates() throws Exception {
 
         NbpClient sut = new NbpClient();
 
-        Currency currency = Currency.EUR;
+        CurrencyCode currencyCode = CurrencyCode.EUR;
 
         LocalDate firstDay = LocalDate.of(2016, Month.AUGUST, 1);
         LocalDate lastDay = LocalDate.of(2016, Month.AUGUST, 5);
-        InputStream rates = sut.getRates(firstDay, lastDay, currency);
+        InputStream rates = sut.getRates(firstDay, lastDay, currencyCode);
 
         String responseString = toStringFromInputStream(rates);
 
@@ -32,6 +33,17 @@ public class NbpClientTest {
             Assert.assertTrue(responseString.contains(day.toString()));
         }
         System.out.println("result:" + rates);
+    }
+
+    @Test(expectedExceptions = RatesUnavaibleException.class, expectedExceptionsMessageRegExp = "Rates were not published in this days")
+    public void shouldThrowExceptionForHolidays() throws ConnectionException, RatesUnavaibleException {
+
+        NbpClient sut = new NbpClient();
+        CurrencyCode currencyCode = CurrencyCode.EUR;
+
+        LocalDate firstDay = LocalDate.of(2016, Month.JANUARY, 1);
+        LocalDate lastDay = LocalDate.of(2016, Month.JANUARY, 2);
+        sut.getRates(firstDay, lastDay, currencyCode);
     }
 
     String toStringFromInputStream(InputStream inputStream){

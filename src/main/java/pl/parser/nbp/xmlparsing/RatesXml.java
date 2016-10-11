@@ -4,58 +4,78 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import pl.parser.nbp.utils.Currency;
+import pl.parser.nbp.utils.CurrencyCode;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RatesXml {
 
-    private final Currency currency;
+    private static final String CURRENCY_CODE_TAG_NAME = "Code";
+    private static final String RATES_TAG_NAME = "Rates";
+    private static final String SINGLE_RATE_TAG_NAME = "Rate";
+    private static final String BUYING_RATE_TAG_NAME = "Ask";
+    private static final int INDEX_OF_ONLY_ONE = 0;
+    private final CurrencyCode currencyCode;
     private final List<BigDecimal> rates;
+    private Element rootElement;
 
     public RatesXml(InputStream xml) throws ParserConfigurationException, IOException, SAXException {
 
-        rates = new ArrayList<BigDecimal>();
-        
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse(xml);
 
-        Element documentElement = doc.getDocumentElement();
-        documentElement.normalize();
-        NodeList code = documentElement.getElementsByTagName("Code");
-        Node node = code.item(0);
-        String nodeValue = node.getTextContent();
-        this.currency = Currency.valueOf(nodeValue);
-        NodeList rates = documentElement.getElementsByTagName("Rates");
-        Node ratesNode = rates.item(0);
-        Element ratesElement = (Element) ratesNode;
-        NodeList nodeList = ratesElement.getElementsByTagName("Rate");
+        this.rootElement = getDocumentElement(xml);
+        this.currencyCode = getCurrencyCodeFromRoot();
+        Element ratesElement = getRatesElementFromRoot();
+
+        NodeList nodeList = ratesElement.getElementsByTagName(SINGLE_RATE_TAG_NAME);
+
+        this.rates = new ArrayList<BigDecimal>();
         for (int i =0 ; i< nodeList.getLength(); i++) {
-            Node item = nodeList.item(i);
-            Element element = (Element) item;
-            Node ask = element.getElementsByTagName("Ask").item(0);
-            String textContent = ask.getTextContent();
-            BigDecimal rate = new BigDecimal(textContent);
+            Element element = (Element) nodeList.item(i);
+            String buyingRate = getElementContentFromParentElement(element, BUYING_RATE_TAG_NAME);
+            BigDecimal rate = new BigDecimal(buyingRate);
             this.rates.add(rate);
         }
     }
 
-    public Currency getCurrency(){
-        return this.currency;
+    private Element getRatesElementFromRoot() {
+        NodeList rates = rootElement.getElementsByTagName(RATES_TAG_NAME);
+        Node ratesNode = rates.item(INDEX_OF_ONLY_ONE);
+        Element ratesElement = (Element) ratesNode;
+        return ratesElement;
+    }
+
+    public CurrencyCode getCurrencyCode(){
+        return this.currencyCode;
     }
 
     public List<BigDecimal> getRates(){
         return this.rates;
+    }
+
+    private Element getDocumentElement(InputStream xml) throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(xml);
+        Element documentElement = doc.getDocumentElement();
+        return documentElement;
+    }
+
+    private CurrencyCode getCurrencyCodeFromRoot(){
+        String currencyCode = getElementContentFromParentElement(rootElement, CURRENCY_CODE_TAG_NAME);
+        return CurrencyCode.valueOf(currencyCode);
+    }
+
+    private String getElementContentFromParentElement(Element parentElement, String elementTagName){
+        NodeList nodeList = parentElement.getElementsByTagName(elementTagName);
+        Node node = nodeList.item(INDEX_OF_ONLY_ONE);
+        return node.getTextContent();
     }
 }

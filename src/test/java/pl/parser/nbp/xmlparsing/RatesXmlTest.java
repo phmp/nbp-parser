@@ -2,19 +2,15 @@ package pl.parser.nbp.xmlparsing;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import pl.parser.nbp.utils.Currency;
+import pl.parser.nbp.utils.CurrencyCode;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 /*
 * constructorShouldBeAbleToParseXmlFromString
@@ -33,9 +29,9 @@ public class RatesXmlTest {
     @Test
     public void shouldReturnCorrectCurrencyCode() throws IOException, SAXException, ParserConfigurationException {
         RatesXml ratesXml = new RatesXml(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
-        Currency currency = ratesXml.getCurrency();
+        CurrencyCode currencyCode = ratesXml.getCurrencyCode();
 
-        Assert.assertEquals(currency, Currency.USD);
+        Assert.assertEquals(currencyCode, CurrencyCode.USD);
     }
 
     @Test
@@ -54,7 +50,7 @@ public class RatesXmlTest {
             "  xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\n" +
             "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
             "  <Table>C</Table>\n" +
-            "  <Currency>dolar amerykański</Currency>\n" +
+            "  <CurrencyCode>dolar amerykański</CurrencyCode>\n" +
             "  <Code>USD</Code>\n" +
             "  <Rates>\n" +
             "    <Rate>\n" +

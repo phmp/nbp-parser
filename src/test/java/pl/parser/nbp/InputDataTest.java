@@ -3,7 +3,6 @@ package pl.parser.nbp;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import pl.parser.nbp.utils.Currency;
 
 import java.time.LocalDate;
 
@@ -34,8 +33,8 @@ public class InputDataTest {
         final LocalDate toDate = inputData.getTo();
         Assert.assertEquals(toDate.toString(), toDateInput, "Should return valid toDate");
 
-        final String currency = inputData.getCurrency().toString();
-        Assert.assertEquals(currencyInput, currency, "Should return valid Currency");
+        final String currency = inputData.getCurrencyCode().toString();
+        Assert.assertEquals(currencyInput, currency, "Should return valid CurrencyCode");
     }
 
     @DataProvider

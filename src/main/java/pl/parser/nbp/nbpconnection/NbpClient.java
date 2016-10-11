@@ -3,41 +3,44 @@ package pl.parser.nbp.nbpconnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.time.LocalDate;
 
-import pl.parser.nbp.utils.Currency;
+import pl.parser.nbp.utils.CurrencyCode;
+import pl.parser.nbp.utils.exceptions.ConnectionException;
+import pl.parser.nbp.utils.exceptions.RatesUnavaibleException;
 
 public class NbpClient {
 
-    String url = "http://api.nbp.pl/api/exchangerates/rates/c/";
+    private final static String NBP_URL = "http://api.nbp.pl/api/exchangerates/rates/c/";
 
-    public InputStream getRates(LocalDate firstDay, LocalDate lastDay, Currency currency) throws IOException {
-        String url = this.url + currency + "/" + firstDay + "/" + lastDay + "/";
+    public InputStream getRates(LocalDate firstDay, LocalDate lastDay, CurrencyCode currencyCode) throws ConnectionException, RatesUnavaibleException {
+        String url = NBP_URL + currencyCode + "/" + firstDay + "/" + lastDay + "/";
+
         try {
             HttpURLConnection con = getConnection(url);
-
             con.setRequestMethod("GET");
             con.setRequestProperty("Accept", "application/xml");
-
-            int responseCode = con.getResponseCode();
-            InputStream response = con.getInputStream();
-            System.out.println(response.toString());
-            return response;
+            return getResponse(con);
+        }catch (ProtocolException e){
+            throw new ConnectionException("Protocol issue, cannot send GET request", e);
         }catch (IOException e){
-            throw new IOException("Connection Issue, please check connection", e);
+            throw new ConnectionException("Connection issue, check connection", e);
         }
+
     }
 
-    private HttpURLConnection getConnection(String url) throws IOException {
-        URL obj;
+    protected HttpURLConnection getConnection(String url) throws IOException {
+        URL obj = new URL(url);
+        return (HttpURLConnection) obj.openConnection();
+    }
+
+    private InputStream getResponse(HttpURLConnection connection) throws RatesUnavaibleException {
         try {
-            obj = new URL(url);
-            return (HttpURLConnection) obj.openConnection();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Wrong url, please check URL correctness");
+            return connection.getInputStream();
+        } catch (IOException e) {
+            throw new RatesUnavaibleException("Rates were not published in this days", e);
         }
     }
 

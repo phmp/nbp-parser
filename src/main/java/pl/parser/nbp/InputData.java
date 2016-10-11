@@ -1,6 +1,6 @@
 package pl.parser.nbp;
 
-import pl.parser.nbp.utils.Currency;
+import pl.parser.nbp.utils.CurrencyCode;
 
 import java.time.LocalDate;
 
@@ -12,14 +12,14 @@ public class InputData {
     private static final int TO_DAY_INDEX = 2;
     private LocalDate from;
     private LocalDate to;
-    private Currency currency;
+    private CurrencyCode currencyCode;
 
     public InputData(String[] args) {
         String currency = args[CURRENCY_INDEX];
         String from = args[FROM_DAY_INDEX];
         String to = args[TO_DAY_INDEX];
 
-        this.currency = Currency.valueOf(currency);
+        this.currencyCode = CurrencyCode.valueOf(currency);
         this.from = LocalDate.parse(from);
         this.to = LocalDate.parse(to);
     }
@@ -32,7 +32,7 @@ public class InputData {
         return to;
     }
 
-    public Currency getCurrency() {
-        return currency;
+    public CurrencyCode getCurrencyCode() {
+        return currencyCode;
     }
 }

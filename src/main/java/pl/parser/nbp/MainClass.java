@@ -1,20 +1,14 @@
 package pl.parser.nbp;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.xml.sax.SAXException;
 import pl.parser.nbp.calculation.RatesCalculator;
 import pl.parser.nbp.nbpconnection.NbpClient;
-import pl.parser.nbp.utils.Currency;
+import pl.parser.nbp.utils.CurrencyCode;
 import pl.parser.nbp.xmlparsing.RatesXml;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 public class MainClass {
 
@@ -28,7 +22,7 @@ public class MainClass {
     public static String doAllWork(String[] args){
         InputData inputData = new InputData(args);
 
-        Currency currency = inputData.getCurrency();
+        CurrencyCode currencyCode = inputData.getCurrencyCode();
         LocalDate dateFrom = inputData.getFrom();
         LocalDate dateTo = inputData.getTo();
 
@@ -37,7 +31,7 @@ public class MainClass {
 
         RatesXml rates;
         try {
-            responseXml = nbpClient.getRates(dateFrom, dateTo, currency);
+            responseXml = nbpClient.getRates(dateFrom, dateTo, currencyCode);
             rates = new RatesXml(responseXml);
         }catch (Exception e){
             return e.getMessage();
