@@ -32,24 +32,23 @@ public class RatesXml {
 
         this.rootElement = getDocumentElement(xml);
         this.currencyCode = getCurrencyCodeFromRoot();
-        Element ratesElement = getRatesElementFromRoot();
-
-        NodeList nodeList = ratesElement.getElementsByTagName(SINGLE_RATE_TAG_NAME);
+        NodeList ratesNodeList = getRatesFromRoot();
 
         this.rates = new ArrayList<BigDecimal>();
-        for (int i =0 ; i< nodeList.getLength(); i++) {
-            Element element = (Element) nodeList.item(i);
-            String buyingRate = getElementContentFromParentElement(element, BUYING_RATE_TAG_NAME);
-            BigDecimal rate = new BigDecimal(buyingRate);
-            this.rates.add(rate);
+        for (int i =0 ; i< ratesNodeList.getLength(); i++) {
+            Element element = (Element) ratesNodeList.item(i);
+            String buyingRateString = getElementContentFromParentElement(element, BUYING_RATE_TAG_NAME);
+            BigDecimal buyingRate = new BigDecimal(buyingRateString);
+            this.rates.add(buyingRate);
         }
     }
 
-    private Element getRatesElementFromRoot() {
+    private NodeList getRatesFromRoot() {
         NodeList rates = rootElement.getElementsByTagName(RATES_TAG_NAME);
         Node ratesNode = rates.item(INDEX_OF_ONLY_ONE);
         Element ratesElement = (Element) ratesNode;
-        return ratesElement;
+        NodeList ratesNodeList = ratesElement.getElementsByTagName(SINGLE_RATE_TAG_NAME);
+        return ratesNodeList;
     }
 
     public CurrencyCode getCurrencyCode(){
@@ -64,6 +63,7 @@ public class RatesXml {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(xml);
+
         Element documentElement = doc.getDocumentElement();
         return documentElement;
     }
