@@ -10,7 +10,6 @@ import pl.parser.nbp.utils.CurrencyCode;
 import pl.parser.nbp.utils.ExchangeRates;
 import pl.parser.nbp.utils.exceptions.InvalidInputException;
 import pl.parser.nbp.utils.exceptions.NbpConnectionException;
-import pl.parser.nbp.utils.exceptions.RatesNotPublishedException;
 import pl.parser.nbp.xmlparsing.RatesXmlParser;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,6 +30,7 @@ public class MainClassTest {
     private NbpClient mockNbpClient;
     private RatesXmlParser mockRatesXmlParser;
     private RatesCalculator mockRatesCalculator;
+    private static final String[] DUMMY_ARGS = new String[]{"USD", "2013-01-01", "2013-01-10"};
 
     class IsolatedMainClass extends MainClass{
         @Override
@@ -56,31 +56,27 @@ public class MainClassTest {
 
     @BeforeMethod
     public void initializeMocksAndSUT() {
-        systemUnderTest = new MainClass();
-
         mockInputData = Mockito.mock(InputData.class);
         mockNbpClient= Mockito.mock(NbpClient.class);
         mockRatesXmlParser = Mockito.mock(RatesXmlParser.class);
         mockRatesCalculator = Mockito.mock(RatesCalculator.class);
+
+        systemUnderTest = new IsolatedMainClass();
     }
 
     @Test
     public void shouldReturnAverageAndStandardDevitasionFromCalculator() throws Exception {
 
-        initializeMocksAndSUT();
-
         Mockito.when(mockRatesCalculator.getAverageOfBuyingRates()).thenReturn(AVERAGE);
         Mockito.when(mockRatesCalculator.getStandardDivitationOfSellingRates()).thenReturn(STANDARD_DEVITATION);
-        String[] dummyArgs = {"USD","2013-01-01","2013-01-10"};
-        systemUnderTest = new IsolatedMainClass();
+        String output = systemUnderTest.getAndCalculateData(DUMMY_ARGS);
 
-        String output = systemUnderTest.getAndCalculateData(dummyArgs);
-
-        assertEquals(output, "5.0000\n1.0000");
+        assertEquals(output, AVERAGE+"\n"+STANDARD_DEVITATION);
     }
 
-    @Test
-    public void whenExpectedExceptionIsThrown_shouldTheSameThrowException_WithTheSameMessage() throws InvalidInputException, RatesNotPublishedException, NbpConnectionException {
+    @Test(expectedExceptions = NbpConnectionException.class, expectedExceptionsMessageRegExp = "Dummy Message" )
+    public void whenExpectedExceptionIsThrown_shouldTheSameThrowException_WithTheSameMessage() throws Exception {
         Mockito.when(mockNbpClient.getRates(Mockito.<LocalDate>any(),Mockito.<LocalDate>any(),Mockito.<CurrencyCode>any())).thenThrow(EXPECTED_EXCEPTION);
+        systemUnderTest.getAndCalculateData(DUMMY_ARGS);
     }
 }
