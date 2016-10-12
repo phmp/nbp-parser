@@ -3,9 +3,11 @@ package pl.parser.nbp.xmlparsing;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
-import pl.parser.nbp.utils.Currency;
+import pl.parser.nbp.utils.CurrencyCode;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -18,37 +20,34 @@ import java.util.List;
 */
 
 
-public class RatesXmlTest {
+public class RatesXmlParserTest {
 
     @Test
     public void constructorShouldBeAbleToParseXmlFromString() throws IOException, SAXException, ParserConfigurationException {
-        new RatesXml(STANDARD_STRING_XML);
-    }
-
-    @Test
-    public void shouldReturnCorrectCurrencyCode() throws IOException, SAXException, ParserConfigurationException {
-        RatesXml ratesXml = new RatesXml(STANDARD_STRING_XML);
-        Currency currency = ratesXml.getCurrency();
-
-        Assert.assertEquals(currency, Currency.USD);
+        new RatesXmlParser(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
     }
 
     @Test
     public void shouldReturnCorrectRates() throws IOException, SAXException, ParserConfigurationException {
-        RatesXml ratesXml = new RatesXml(STANDARD_STRING_XML);
-        List<BigDecimal> rates = ratesXml.getRates();
+        RatesXmlParser ratesXmlParser = new RatesXmlParser(new ByteArrayInputStream(STANDARD_STRING_XML.getBytes("UTF-8")));
+        List<BigDecimal> buyingRates = ratesXmlParser.getRates().getBuyingRates();
 
-        List<BigDecimal> expectedRates = Arrays.asList(new BigDecimal("4.0053"),new BigDecimal("4.0514"),new BigDecimal("4.0392"));
+        List<BigDecimal> expectedBuingRates = Arrays.asList(new BigDecimal("3.9259"),new BigDecimal("3.9712"),new BigDecimal("3.9592"));
+        Assert.assertEquals(buyingRates, expectedBuingRates);
 
-        Assert.assertEquals(rates, expectedRates);
+        List<BigDecimal> sellingRates = ratesXmlParser.getRates().getSailingRates();
+
+        List<BigDecimal> expectedSellingRates = Arrays.asList(new BigDecimal("4.0053"),new BigDecimal("4.0514"),new BigDecimal("4.0392"));
+        Assert.assertEquals(sellingRates, expectedSellingRates);
     }
+
 
     public static final String STANDARD_STRING_XML = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "<ExchangeRatesSeries\n" +
             "  xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\n" +
             "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
             "  <Table>C</Table>\n" +
-            "  <Currency>dolar amerykański</Currency>\n" +
+            "  <CurrencyCode>dolar amerykański</CurrencyCode>\n" +
             "  <Code>USD</Code>\n" +
             "  <Rates>\n" +
             "    <Rate>\n" +

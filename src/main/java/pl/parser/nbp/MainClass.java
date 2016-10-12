@@ -1,16 +1,18 @@
 package pl.parser.nbp;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.List;
 
 import org.xml.sax.SAXException;
+import pl.parser.nbp.calculation.RatesCalculator;
 import pl.parser.nbp.nbpconnection.NbpClient;
-import pl.parser.nbp.utils.Currency;
-import pl.parser.nbp.xmlparsing.RatesXml;
+import pl.parser.nbp.utils.CurrencyCode;
+import pl.parser.nbp.utils.ExchangeRates;
+import pl.parser.nbp.utils.exceptions.ExpectedException;
+import pl.parser.nbp.utils.exceptions.InvalidInputException;
+import pl.parser.nbp.xmlparsing.RatesXmlParser;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -18,52 +20,57 @@ public class MainClass {
 
     public static void main(String[] args) {
 
-        String output = doAllWork(args);
+        MainClass main = new MainClass();
+        String output;
+        try {
+            output = main.getAndCalculateData(args);
+        } catch (ExpectedException e) {
+            output = e.getMessage();
+        } catch (Exception e){
+            output = "Unexpected exception: " + e.getMessage();
+        }
         System.out.print(output);
 
     }
 
-    public static String doAllWork(String[] args) {
-        InputData inputData = new InputData(args);
+    public String getAndCalculateData(String[] args) throws Exception {
+        InputData inputData = newInputData(args);
+        inputData.validate();
 
-        Currency currency = inputData.getCurrency();
-        LocalDate dateFrom = inputData.getFrom();
-        LocalDate dateTo = inputData.getTo();
+        CurrencyCode currencyCode = inputData.getCurrencyCode();
+        LocalDate dateFrom = inputData.getFirstDay();
+        LocalDate dateTo = inputData.getLastDay();
 
-        NbpClient nbpClient = new NbpClient();
-        String responseXml;
-        try {
-            responseXml = nbpClient.getRates(dateFrom, dateTo, currency);
-            RatesXml rates = new RatesXml(responseXml);
-            List<BigDecimal> ratesList = rates.getRates();
+        NbpClient nbpClient = newNbpClient();
+        InputStream responseXml = nbpClient.getRates(dateFrom, dateTo, currencyCode);
 
-            BigDecimal sum = new BigDecimal(0);
-            for (BigDecimal rate: ratesList) {
-                sum = sum.add(rate);
-            }
-            BigDecimal n = new BigDecimal(ratesList.size());
-            BigDecimal average = sum.divide(n, RoundingMode.HALF_EVEN);
+        RatesXmlParser rates = newRatesXmlParser(responseXml);
 
-            BigDecimal standardDevitation = new BigDecimal(0);
-            for (BigDecimal rate: ratesList) {
-                BigDecimal augent = average.subtract(rate).pow(2);
-                standardDevitation = standardDevitation.add(augent);
-            }
-            System.out.print("" +n);
-            standardDevitation = standardDevitation.divide(n, RoundingMode.HALF_EVEN);
+        ExchangeRates exchangeRates = rates.getRates();
+        RatesCalculator ratesCalculator = newRatesCalculator(exchangeRates);
 
-            standardDevitation = new BigDecimal(Math.sqrt(standardDevitation.doubleValue()));
+        BigDecimal average = ratesCalculator.getAverageOfBuyingRates();
+        BigDecimal standardDivitation = ratesCalculator.getStandardDivitationOfSellingRates();
 
-            return average.round(new MathContext(5)).toPlainString()+"\n"+standardDevitation.round(new MathContext(3)).toPlainString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        }
+        return average+"\n"+standardDivitation;
+    }
 
-        return null;
+    //methods wrap new operator to get possibility to isolate class in unit tests
+
+    protected InputData newInputData(String[] args) throws InvalidInputException {
+        return new InputData(args);
+    }
+
+    protected NbpClient newNbpClient() {
+        return new NbpClient();
+    }
+
+    protected RatesXmlParser newRatesXmlParser(InputStream responseXml) throws IOException, SAXException, ParserConfigurationException {
+        return new RatesXmlParser(responseXml);
+    }
+
+    protected RatesCalculator newRatesCalculator(ExchangeRates exchangeRates) {
+        return new RatesCalculator(exchangeRates);
     }
 
 }

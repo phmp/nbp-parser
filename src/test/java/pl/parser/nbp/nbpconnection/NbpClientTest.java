@@ -1,36 +1,87 @@
 package pl.parser.nbp.nbpconnection;
 
-import junit.framework.Assert;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.Any;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pl.parser.nbp.InputData;
-import pl.parser.nbp.utils.Currency;
+import pl.parser.nbp.utils.CurrencyCode;
+import pl.parser.nbp.utils.exceptions.NbpConnectionException;
+import pl.parser.nbp.utils.exceptions.RatesNotPublishedException;
 
-import java.math.BigDecimal;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URLConnection;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
+import java.net.URL;
+
 
 import static org.testng.Assert.*;
 
+/*
+*  whenConnectionThrowProtocolException_should_throwNbpConnectionExceptionWithProperMessage
+*
+*  shouldReturnInputStreamFromConnection
+*  whenConnectionThrowException_should_throwNbpConnectionExceptionWithProperMessage
+*
+*
+* */
+
 
 public class NbpClientTest {
-    @Test
-    public void testGet() throws Exception {
 
-        NbpClient sut = new NbpClient();
+    public HttpURLConnection MOCK_CONNECTION;
 
-        Currency currency = Currency.EUR;
+    @BeforeMethod
+    private void initMock() {
+        MOCK_CONNECTION = Mockito.mock(HttpURLConnection.class);
+    }
 
-        LocalDate firstDay = LocalDate.of(2016, Month.AUGUST, 1);
-        LocalDate lastDay = LocalDate.of(2016, Month.AUGUST, 5);
-        String rates = sut.getRates(firstDay, lastDay, currency);
+    class IsolatedNbpClient extends NbpClient{
 
-        Assert.assertTrue(rates.contains("<Code>EUR</Code>"));
-        Assert.assertTrue(rates.contains("<Rates>"));
-        for(LocalDate day = firstDay; day.isBefore(lastDay); day = day.plusDays(1)){
-            Assert.assertTrue(rates.contains(day.toString()));
+        @Override
+        protected HttpURLConnection getConnection(URL url) throws IOException {
+            return MOCK_CONNECTION;
         }
-        System.out.println("result:" + rates);
+    }
+
+    class DissconnectedNbpClient extends NbpClient{
+
+        @Override
+        protected HttpURLConnection getConnection(URL url) throws IOException {
+            throw new IOException();
+        }
+    }
+
+    @Test
+    public void shouldReturnResponseFromConnection() throws RatesNotPublishedException, NbpConnectionException, IOException {
+
+        NbpClient systemUnderTest = new IsolatedNbpClient();
+        InputStream expectedRates = Mockito.mock(InputStream.class);
+        Mockito.when(MOCK_CONNECTION.getInputStream()).thenReturn(expectedRates);
+
+        InputStream returnedRates = systemUnderTest.getRates(LocalDate.of(2016, Month.JANUARY, 3), LocalDate.of(2016, Month.JANUARY, 4), CurrencyCode.CHF);
+
+        assertEquals(returnedRates, expectedRates);
+    }
+
+    @Test
+    public void shouldSetRequestMethodAndPropertyConnection() throws RatesNotPublishedException, NbpConnectionException, IOException {
+
+        NbpClient systemUnderTest = new IsolatedNbpClient();
+        systemUnderTest.getRates(LocalDate.of(2016, Month.JANUARY, 3), LocalDate.of(2016, Month.JANUARY, 4), CurrencyCode.CHF);
+
+        Mockito.verify(MOCK_CONNECTION).setRequestMethod("GET");
+        Mockito.verify(MOCK_CONNECTION).setRequestProperty("Accept","application/xml");
+
+    }
+
+    @Test(expectedExceptions = NbpConnectionException.class, expectedExceptionsMessageRegExp = "Connection issue, check connection")
+    public void whenConnectionProblemAppear_shouldThrowProperException() throws RatesNotPublishedException, NbpConnectionException, IOException {
+
+        NbpClient systemUnderTest = new DissconnectedNbpClient();
+        systemUnderTest.getRates(LocalDate.of(2016, Month.JANUARY, 3), LocalDate.of(2016, Month.JANUARY, 4), CurrencyCode.CHF);
     }
 
 }
