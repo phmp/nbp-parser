@@ -16,6 +16,8 @@ public class InputData {
     private static final int FIRST_DAY_INDEX = 1;
     private static final int LAST_DAY_INDEX = 2;
     private static final LocalDate THE_OLDEST_RATES_PUBLISH_DATE = LocalDate.of(2002, Month.JANUARY, 2);
+    private static final int MAXIMUM_NUMBER_OF_DAYS_BETWEEN_DATES = 93;
+    private static final int CORRECT_NUMBER_OF_ARGUMENTS = 3;
     private String firstDay;
     private String lastDay;
     private String currencyCode;
@@ -37,7 +39,7 @@ public class InputData {
     }
 
     private void checkNumberOfArguments(String[] args) throws InvalidInputException {
-        if (args.length != 3){
+        if (args.length != CORRECT_NUMBER_OF_ARGUMENTS){
             throw new InvalidInputException("Wrong number of arguments");
         }
     }
@@ -72,8 +74,8 @@ public class InputData {
     }
 
     private void checkIfPeriodBetweenDatesIsTooLong() throws InvalidInputException {
-        if(DAYS.between(getFirstDay(), getLastDay()) > 93){
-            throw new InvalidInputException("Period between dates must not be longer than 93 days");
+        if(DAYS.between(getFirstDay(), getLastDay()) > MAXIMUM_NUMBER_OF_DAYS_BETWEEN_DATES){
+            throw new InvalidInputException("Period between dates must not be longer than "+MAXIMUM_NUMBER_OF_DAYS_BETWEEN_DATES+" days");
         }
     }
 

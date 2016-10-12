@@ -45,11 +45,14 @@ public class RatesCalculator {
 
         standardDevitation = standardDevitation.divide(numberOfRates, ROUNDING_MODE);
 
-        double sqrt = Math.sqrt(standardDevitation.doubleValue());
-
-        standardDevitation = new BigDecimal(sqrt, new MathContext(3, ROUNDING_MODE));
+        standardDevitation = calculateSqrt(standardDevitation);
 
         return standardDevitation;
+    }
+
+    private BigDecimal calculateSqrt(BigDecimal x){
+        double sqrt = Math.sqrt(x.doubleValue());
+        return new BigDecimal(sqrt, new MathContext(3, ROUNDING_MODE));
     }
 
 }
