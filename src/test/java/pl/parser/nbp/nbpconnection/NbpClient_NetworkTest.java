@@ -29,10 +29,9 @@ public class NbpClient_NetworkTest {
 
         Assert.assertTrue(responseString.contains("<Code>EUR</Code>"));
         Assert.assertTrue(responseString.contains("<Rates>"));
-        for(LocalDate day = firstDay; day.isBefore(lastDay); day = day.plusDays(1)){
+        for(LocalDate day = firstDay; !day.isAfter(lastDay); day = day.plusDays(1)){
             Assert.assertTrue(responseString.contains(day.toString()));
         }
-        System.out.println("result:" + rates);
     }
 
     @Test(expectedExceptions = RatesNotPublishedException.class, expectedExceptionsMessageRegExp = "Rates were not published in this days")

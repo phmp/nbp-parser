@@ -9,6 +9,7 @@ import java.util.List;
 
 public class RatesCalculator {
 
+    public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_EVEN;
     private final List<BigDecimal> buyingRates;
     private final List<BigDecimal> sellingRates;
 
@@ -29,19 +30,25 @@ public class RatesCalculator {
             sum = sum.add(rate);
         }
 
-        return sum.divide(numberOfRates, RoundingMode.HALF_EVEN).round(new MathContext(5, RoundingMode.HALF_EVEN));
+        return sum.divide(numberOfRates, RoundingMode.HALF_EVEN).round(new MathContext(5, ROUNDING_MODE));
     }
 
     public BigDecimal getStandardDivitationOfSellingRates(){
         BigDecimal standardDevitation = BigDecimal.ZERO;
         BigDecimal average = getAverage(sellingRates);
         BigDecimal numberOfRates = new BigDecimal(sellingRates.size());
+
         for (BigDecimal rate: sellingRates) {
             BigDecimal augent = average.subtract(rate).pow(2);
             standardDevitation = standardDevitation.add(augent);
         }
-        standardDevitation = standardDevitation.divide(numberOfRates, RoundingMode.HALF_EVEN);
-        standardDevitation = new BigDecimal(Math.sqrt(standardDevitation.doubleValue()), new MathContext(3,RoundingMode.HALF_EVEN));
+
+        standardDevitation = standardDevitation.divide(numberOfRates, ROUNDING_MODE);
+
+        double sqrt = Math.sqrt(standardDevitation.doubleValue());
+
+        standardDevitation = new BigDecimal(sqrt, new MathContext(3, ROUNDING_MODE));
+
         return standardDevitation;
     }
 

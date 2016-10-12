@@ -11,7 +11,8 @@ public class MainClass_NetworkTest {
 
     @Test(dataProvider = "provideData")
     public void test(String[] input, String expectedOutput) throws Exception {
-        String outPut = MainClass.doAllWork(input);
+        MainClass systemUnderTest = new MainClass();
+        String outPut = systemUnderTest.getAndCalculateData(input);
         Assert.assertEquals(outPut, expectedOutput);
     }
 
@@ -29,7 +30,8 @@ public class MainClass_NetworkTest {
     @Test(dataProvider = "provideUnexpectedData")
     public void cornerCaseTest(String[] input, Class<Exception> exceptionClass, String expectedErrorMessage) {
         try {
-            MainClass.doAllWork(input);
+            MainClass systemUnderTest = new MainClass();
+            systemUnderTest.getAndCalculateData(input);
             Assert.fail();
         } catch (Exception e) {
             Class<? extends Exception> aClass = e.getClass();

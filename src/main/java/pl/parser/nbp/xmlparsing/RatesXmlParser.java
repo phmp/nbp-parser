@@ -40,12 +40,10 @@ public class RatesXmlParser {
         for (int i =0 ; i< ratesNodeList.getLength(); i++) {
             Element element = (Element) ratesNodeList.item(i);
 
-            String buyingRateString = getElementContentFromParentElement(element, BUYING_RATE_TAG_NAME);
-            BigDecimal buyingRate = new BigDecimal(buyingRateString);
+            BigDecimal buyingRate = getElementContentFromParentElementAsBigDecimal(element, BUYING_RATE_TAG_NAME);
             buyingRates.add(buyingRate);
 
-            String sellingRateString = getElementContentFromParentElement(element, SELLING_RATE_TAG_NAME);
-            BigDecimal sellingRate = new BigDecimal(sellingRateString);
+            BigDecimal sellingRate = getElementContentFromParentElementAsBigDecimal(element, SELLING_RATE_TAG_NAME);
             sellingRates.add(sellingRate);
         }
         return new ExchangeRates(buyingRates, sellingRates);
@@ -68,10 +66,11 @@ public class RatesXmlParser {
         return ratesNodeList;
     }
 
-    private String getElementContentFromParentElement(Element parentElement, String elementTagName){
+    private BigDecimal getElementContentFromParentElementAsBigDecimal(Element parentElement, String elementTagName){
         NodeList nodeListWithOnlyOneElement = parentElement.getElementsByTagName(elementTagName);
         Node node = nodeListWithOnlyOneElement.item(INDEX_OF_FIRST_ELEMENT);
-        return node.getTextContent();
+        String textContent = node.getTextContent();
+        return new BigDecimal(textContent);
     }
 
 }

@@ -15,21 +15,19 @@ public class RatesCalculatorTest {
     @Test
     public void shouldReturnCorrectAverage(){
 
-        List<BigDecimal> sellingRates = Arrays.asList(new BigDecimal("2"),new BigDecimal("3"),new BigDecimal("3"),new BigDecimal("4"));
+        List<BigDecimal> sellingRates = Arrays.asList(new BigDecimal("2.0000"),new BigDecimal("3.0000"),new BigDecimal("3.0000"),new BigDecimal("4.0000"));
         List<BigDecimal> buyingRates = Arrays.asList(new BigDecimal("2"),new BigDecimal("3"),new BigDecimal("3"),new BigDecimal("5"));
         ExchangeRates exchangeRates = new ExchangeRates(buyingRates, sellingRates);
 
         RatesCalculator systemUnderTest = new RatesCalculator(exchangeRates);
 
-        BigDecimal averageOfSellingRates = systemUnderTest.getAverageOfBuyingRates();
+        BigDecimal averageOfBuyingRates = systemUnderTest.getAverageOfBuyingRates();
 
-        assertTrue(averageOfSellingRates.compareTo( new BigDecimal("3.0000") )==0);
+        assertTrue(averageOfBuyingRates.compareTo( new BigDecimal("3.0000") )==0);
 
         BigDecimal standardDivitation = systemUnderTest.getStandardDivitationOfSellingRates();
 
-        assertTrue(standardDivitation.compareTo(new BigDecimal("0.2500") ) == 0);
-
-
+        assertEquals(standardDivitation, new BigDecimal("0.8165"));
     }
 
 }
